@@ -1,0 +1,17 @@
+{
+  "name": "planeastrointercept",
+  "version": "1.0.0",
+  "description": "Find the time at which a plane will intercept the local sunset/sunrise/etc in GMT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d lib",
+    "start": "npm run build && node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
+  }
+}
