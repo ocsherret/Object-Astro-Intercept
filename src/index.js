@@ -12,15 +12,15 @@ const oneSecond = 1000;
 const oneMinute = 60000;
 const oneHour = 3600000;
 const oneDay = 86400000;
-let  speed = 600;
-const knotsToDegrees = 1/60;
+
 
 
 function getPositionAndDirection(){
 
 }
 function calculateProjectedLatLong(distanceToSunset, timeToPoint){
-
+    //Purpose of this function is to get the projected Lat/Long using a great circle line.
+    //Then it uses the projected time of arrival of the object to recalculate the astro times.
     let directionRad = deg.toRadians(plane.getTrueBearing());
     let latitudeRad = deg.toRadians(plane.getLatitude());
     let longitudeRad = deg.toRadians(plane.getLongitude());
@@ -82,6 +82,7 @@ function checkForSunriseIntercept(){
 function check(){
     timeNow = Date.now();
     checkForSunsetIntercept();
+    plane.move();
     //checkForSunriseIntercept();
 }
 const myHeartBeat = setInterval(check, 5000);

@@ -1,10 +1,13 @@
+const Degrees = require("./degrees");
+const deg = new Degrees();
+
 class MovingObject{
     constructor(){
         this.trueBearing = 70;
         this.latitude = 43;
         this.longitude = -79;
         this.altitudeFeet = 30000;
-        this.speed = 120;
+        this.speed = 1200;
     }
     getTrueBearing(){
         return this.trueBearing;
@@ -35,6 +38,39 @@ class MovingObject{
     }
     setSpeed(speed){
         this.speed = speed;
+    }
+    move(){
+    let directionRad = deg.toRadians(this.trueBearing);
+    let latitudeRad = deg.toRadians(this.latitude);
+    let longitudeRad = deg.toRadians(this.longitude);
+    let newLatitude = this.latitude;
+    let newLongitude = this.longitude;
+    let newBearing = this.trueBearing;
+    let newBearingY = null;
+    let newBearingX = null;
+    let funcDistance = this.speed * (5000/3600000);
+
+    newLatitude = Math.asin(
+                            Math.sin(latitudeRad) * Math.cos(funcDistance/3440)
+                                + Math.cos(latitudeRad) * Math.sin(funcDistance/3440) * Math.cos(directionRad)); 
+
+    
+    newLongitude = this.longitude + deg.toDegrees(Math.atan2(Math.sin(directionRad) * Math.sin(funcDistance/3440) * Math.cos(latitudeRad),
+                                    Math.cos(funcDistance/3440) - Math.sin(latitudeRad) * Math.sin(newLatitude)));
+    
+    
+    newBearingY = Math.sin(longitudeRad - deg.toRadians(newLongitude)) * Math.cos(latitudeRad);
+    newBearingX = Math.cos(newLatitude) * Math.sin(latitudeRad) - Math.sin(newLatitude)*Math.cos(latitudeRad)*Math.cos(longitudeRad-deg.toRadians(newLongitude))
+    newBearing = deg.toDegrees(Math.atan2(newBearingY, newBearingX))
+    newBearing = (newBearing + 180) % 360;
+    //Conversion to here as these variables are needed in Radians.
+    newLatitude = deg.toDegrees(newLatitude);
+    
+    this.trueBearing = newBearing;
+    this.latitude = newLatitude;
+    this.longitude = newLongitude;
+    console.log("Current Lat/Long:          " + this.latitude.toFixed(2),this.longitude.toFixed(2));
+    console.log("Current True Bearing:      "+ this.trueBearing.toFixed(2));    //console.log(newLatitude,newLongitude);
     }
 }
 module.exports = MovingObject;
