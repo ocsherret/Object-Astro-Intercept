@@ -172,9 +172,9 @@ class SunAstroTimes {
             this.sunSet = dateDatum + (this.solarTransit + hourAngle / 360)
                 * 86400000;
             i++;
-        } while (this.sunSet < timeNow && i < 2);
-        
-        if ((this.sunSet - this.date) > 86400000 && i === 1) {
+        } while (this.sunSet < timeNow && i < 4);
+
+        if ((this.sunSet - this.date) > 86400000) {
             this.date = this.date - Math.floor((this.sunSet-this.date)/ 86400000)* 86400000;
             this.calcSolarNoon();
             const hourAngle = deg.degACos(

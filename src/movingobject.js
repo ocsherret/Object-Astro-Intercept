@@ -3,11 +3,11 @@ const deg = new Degrees();
 
 class MovingObject {
     constructor() {
-        this.trueBearing = 270;
+        this.trueBearing = 90;
         this.latitude = 43;
-        this.longitude = 179.98;
+        this.longitude = -129;
         this.altitudeFeet = 30000;
-        this.speed = 60;
+        this.speed = 600;
     }
     getTrueBearing() {
         return this.trueBearing;

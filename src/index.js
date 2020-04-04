@@ -25,7 +25,7 @@ const oneHour = 3600000;
 const oneDay = 86400000;
 
 
-function calculateProjectedLatLong(distanceToSunset, timeToPoint) {
+function calculateProjectedLatLong(distanceToSunset, timeToPoint, daylight) {
     // Purpose of this function is to get the projected Lat/Long using a great circle line.
     // Then it uses the projected time of arrival of the object to recalculate the astro times.
     let directionRad = deg.toRadians(plane.getTrueBearing());
@@ -59,33 +59,28 @@ function calculateProjectedLatLong(distanceToSunset, timeToPoint) {
 
 
 
-        
+    if(daylight === true){   
     sun.calcNextSunset(
         timeToPoint,
         newLatitude,
         newLongitude,
-        plane.getAltitudeFeet(),
-    );
+        plane.getAltitudeFeet());
+    } else if(daylight === false){
+        sun.calcNextSunrise(
+            timeToPoint,
+            newLatitude,
+            newLongitude,
+            plane.getAltitudeFeet());
+    }
 
      //console.log(newLatitude,newLongitude);
 }
 function checkForSunsetIntercept() {
     let timeToPoint = 0;
-    /*let i = 300;
-    
-    console.log(
-        "Sunset is:         " + new Date(sun.getSunset()).toUTCString(),
-    );
-    console.log(
-        "Intercept time is: " + new Date(timeToPoint).toUTCString(),
-    );
-    console.log(sun.getSunset() <= timeToPoint);
-        */
-    for (let i = 0; i <= plane.getSpeed() * 7; i += 0.1) {
+    for (let i = 0; i <= plane.getSpeed() * 6; i += 0.1) {
         timeToPoint = i / plane.getSpeed() * oneHour + timeNow;
-        calculateProjectedLatLong(i, timeToPoint);
+        calculateProjectedLatLong(i, timeToPoint, true);
         
-
         if (sun.getSunset() <= timeToPoint) {
             console.log(
                 "Sunset is:         " + new Date(sun.getSunset()).toUTCString(),
@@ -102,35 +97,66 @@ function checkForSunsetIntercept() {
             );
             break;
         }
+        if(i >= plane.getSpeed() * 6 -0.2){
+            console.log((sun.getSunset() <= timeToPoint));
+            console.log("||------------------------------------||")
+            console.log(
+                "Sunset is:         " + new Date(sun.getSunset()).toUTCString(),
+            );
+            console.log(
+                "Intercept time is: " + new Date(timeToPoint).toUTCString(),
+            );
+            console.log("||------------------------------------||")
+        }
     }
-    /*timeNow = Date.now();
-    sun.calcNextSunset(
-        timeNow,
-        plane.getLatitude(),
-        plane.getLongitude(),
-        plane.getAltitudeFeet(),
-    );
-    console.log("Next sunset:   "+new Date(sun.getSunset()).toUTCString());
-    console.log("Time now:      "+new Date(Date.now()).toUTCString());
-    */
 }
 function checkForSunriseIntercept() {
-    
+    let timeToPoint = 0;
+    for (let i = 0; i <= plane.getSpeed() * 6; i += 0.1) {
+        timeToPoint = i / plane.getSpeed() * oneHour + timeNow;
+        calculateProjectedLatLong(i, timeToPoint, false);
+        if (sun.getSunset() <= timeToPoint) {
+            console.log(
+                "Sunrise is:         " + new Date(sun.getSunrise()).toUTCString(),
+            );
+            console.log(
+                "Intercept time is: " + new Date(timeToPoint).toUTCString(),
+            );
+            console.log("Time now is:       " + new Date(timeNow).toUTCString());
+            console.log("Lat Long is:       " + newLatitude.toFixed(3), newLongitude.toFixed(3));
+            console.log("Distance to go is: " + i.toFixed(2) + "NM");
+            console.log(
+                "Time to go is:     " + ((timeToPoint - timeNow) / oneHour).toFixed(2)
+                    + "Hrs",
+            );
+            break;
+        }
+        if(i >= plane.getSpeed() * 6 -0.2){
+            console.log((sun.getSunset() <= timeToPoint));
+            console.log("||------------------------------------||")
+            console.log(
+                "Sunset is:         " + new Date(sun.getSunset()).toUTCString(),
+            );
+            console.log(
+                "Intercept time is: " + new Date(timeToPoint).toUTCString(),
+            );
+            console.log("||------------------------------------||")
+        }
+    }
 }
 function check() {
     timeNow = Date.now();
-    checkForSunsetIntercept();
-    /*sun.reCalcTimes(
+    sun2.reCalcTimes(
         timeNow,
         plane.getLatitude(),
         plane.getLongitude(),
         plane.getAltitudeFeet(),
     );
-    if(timeNow > sun.getSunrise() && timeNow < sun.getSunset()){
+    if(timeNow > sun2.getSunrise() && timeNow < sun2.getSunset()){
         checkForSunsetIntercept();
     } else {
         checkForSunriseIntercept();
-    }*/
+    }
 
     plane.move(5000);
     
