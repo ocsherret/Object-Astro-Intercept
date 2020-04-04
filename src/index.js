@@ -4,7 +4,7 @@ const SunAstroTimes = require("./sunastrotimes");
 const MovingObject = require("./movingobject");
 const plane = new MovingObject();
 let timeNow = Date.now();
-console.log(new Date());
+
 let newLongitude = plane.getLongitude();
 let newLatitude = plane.getLatitude();
 const sun = new SunAstroTimes(
@@ -49,87 +49,102 @@ function calculateProjectedLatLong(distanceToSunset, timeToPoint) {
         );
 
     newLatitude = deg.toDegrees(newLatitude);
-    sun.reCalcTimes(
+    if(newLongitude > 180){
+        let difference = newLongitude - 180;
+        newLongitude = -180 + difference;
+    }else if(newLongitude < -180){
+        let difference = newLongitude+180;
+        newLongitude = difference + 180;
+    }
+
+
+
+        
+    sun.calcNextSunset(
         timeToPoint,
         newLatitude,
         newLongitude,
         plane.getAltitudeFeet(),
     );
-    // console.log(newLatitude,newLongitude);
+
+     //console.log(newLatitude,newLongitude);
 }
 function checkForSunsetIntercept() {
     let timeToPoint = 0;
-    for (let i = 1; i <= plane.getSpeed() * 6; i += 0.1) {
+    /*let i = 300;
+    
+    console.log(
+        "Sunset is:         " + new Date(sun.getSunset()).toUTCString(),
+    );
+    console.log(
+        "Intercept time is: " + new Date(timeToPoint).toUTCString(),
+    );
+    console.log(sun.getSunset() <= timeToPoint);
+        */
+    for (let i = 0; i <= plane.getSpeed() * 7; i += 0.1) {
         timeToPoint = i / plane.getSpeed() * oneHour + timeNow;
         calculateProjectedLatLong(i, timeToPoint);
+        
+
         if (sun.getSunset() <= timeToPoint) {
             console.log(
-                "Sunset is:         " + new Date(sun.getSunset()).toString(),
+                "Sunset is:         " + new Date(sun.getSunset()).toUTCString(),
             );
             console.log(
-                "Intercept time is: " + new Date(timeToPoint).toString(),
+                "Intercept time is: " + new Date(timeToPoint).toUTCString(),
             );
-            console.log("Time now is:       " + new Date(timeNow).toString());
-            console.log("Lat Long is:       " + newLatitude, newLongitude);
-            console.log("Distance to go is: " + i + "NM");
+            console.log("Time now is:       " + new Date(timeNow).toUTCString());
+            console.log("Lat Long is:       " + newLatitude.toFixed(3), newLongitude.toFixed(3));
+            console.log("Distance to go is: " + i.toFixed(2) + "NM");
             console.log(
-                "Time to go is:     " + (timeToPoint - timeNow) / oneHour
+                "Time to go is:     " + ((timeToPoint - timeNow) / oneHour).toFixed(2)
                     + "Hrs",
             );
             break;
         }
     }
-}
-function checkForSunriseIntercept() {
-    let timeToPoint = 0;
-    for (let i = plane.getSpeed() * 6; i >= 0 ; i -= 0.1) {
-        timeToPoint = i / plane.getSpeed() * oneHour + timeNow;
-
-        calculateProjectedLatLong(i, timeToPoint);
-        console.log(new Date(timeToPoint).toString());
-        console.log(new Date(sun.getSunrise()).toString());
-
-        if (sun.getSunrise() >= timeToPoint) {
-            console.log("||------------------------------------------------------------------||")
-            console.log(
-                "Sunrise is:            "
-                    + new Date(sun.getSunrise()).toString(),
-            );
-            console.log(
-                "Intercept time is:     " + new Date(timeToPoint).toString(),
-            );
-            console.log(
-                "Time now is:           " + new Date(timeNow).toString(),
-            );
-            console.log("Lat Long is:           " + newLatitude.toFixed(3), newLongitude.toFixed(3));
-            console.log("Distance to go is:     " + i.toFixed(1) + "NM");
-            console.log(
-                "Time to go is:         " + ((timeToPoint - timeNow) / oneHour).toFixed(2)
-                    + "Hrs",
-            );
-            break;
-        }else{
-            console.log("No sunrise expected in the next six hours.");
-            break;
-        }
-    }
-    // console.log("No expected sunrise in :" + 15000/speed + "Hrs.")
-}
-function check() {
-    timeNow = Date.now();
-    sun2.reCalcTimes(
+    /*timeNow = Date.now();
+    sun.calcNextSunset(
         timeNow,
         plane.getLatitude(),
         plane.getLongitude(),
         plane.getAltitudeFeet(),
     );
-    if(timeNow > sun2.getSunrise() && timeNow < sun2.getSunset()){
+    console.log("Next sunset:   "+new Date(sun.getSunset()).toUTCString());
+    console.log("Time now:      "+new Date(Date.now()).toUTCString());
+    */
+}
+function checkForSunriseIntercept() {
+    
+}
+function check() {
+    timeNow = Date.now();
+    checkForSunsetIntercept();
+    /*sun.reCalcTimes(
+        timeNow,
+        plane.getLatitude(),
+        plane.getLongitude(),
+        plane.getAltitudeFeet(),
+    );
+    if(timeNow > sun.getSunrise() && timeNow < sun.getSunset()){
         checkForSunsetIntercept();
     } else {
         checkForSunriseIntercept();
-    }
+    }*/
 
-    plane.move();
+    plane.move(5000);
     
 }
+
+function tester(){
+    sun.reCalcTimes(
+        timeNow,
+        newLatitude,
+        newLongitude,
+        plane.getAltitudeFeet(),
+    );
+    console.log(new Date(Date.now()).toUTCString());
+}
+tester();
+//checkForSunriseIntercept();
 const myHeartBeat = setInterval(check, 5000);

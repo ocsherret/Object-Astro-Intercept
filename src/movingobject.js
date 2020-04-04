@@ -3,11 +3,11 @@ const deg = new Degrees();
 
 class MovingObject {
     constructor() {
-        this.trueBearing = 90;
+        this.trueBearing = 270;
         this.latitude = 43;
-        this.longitude = 0;
+        this.longitude = 179.98;
         this.altitudeFeet = 30000;
-        this.speed = 600;
+        this.speed = 60;
     }
     getTrueBearing() {
         return this.trueBearing;
@@ -39,7 +39,7 @@ class MovingObject {
     setSpeed(speed) {
         this.speed = speed;
     }
-    move() {
+    move(heartbeatInterval) {
         let directionRad = deg.toRadians(this.trueBearing);
         let latitudeRad = deg.toRadians(this.latitude);
         let longitudeRad = deg.toRadians(this.longitude);
@@ -48,7 +48,7 @@ class MovingObject {
         let newBearing = this.trueBearing;
         let newBearingY = null;
         let newBearingX = null;
-        let funcDistance = this.speed * (5000 / 3600000);
+        let funcDistance = this.speed * (heartbeatInterval / 3600000);
 
         newLatitude = Math.asin(
             Math.sin(latitudeRad) * Math.cos(funcDistance / 3440)
@@ -75,6 +75,14 @@ class MovingObject {
         newBearing = (newBearing + 180) % 360;
         // Conversion to here as these variables are needed in Radians.
         newLatitude = deg.toDegrees(newLatitude);
+
+        if(newLongitude > 180){
+            let difference = newLongitude - 180;
+            newLongitude = -180 + difference;
+        }else if(newLongitude < -180){
+            let difference = newLongitude+180;
+            newLongitude = difference + 180;
+        }
 
         this.trueBearing = newBearing;
         this.latitude = newLatitude;
