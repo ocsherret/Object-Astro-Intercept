@@ -3,6 +3,10 @@ const deg = new Degrees();
 // All sun calcs are done using a date datum of 01 JAN 2000 @ 1200Zulu
 // Formulas used calculate using days, which is 86400000 milliseconds
 const dateDatum = new Date("2000-01-01T12:00:00Z").getTime();
+const oneSecond = 1000;
+const oneMinute = 60000;
+const oneHour = 3600000;
+const oneDay = 86400000;
 
 class SunAstroTimes {
     constructor(date, latitude, longitude, altitude) {
@@ -118,94 +122,98 @@ class SunAstroTimes {
                 / (deg.degCos(this.latitude)
                     * deg.degCos(this.solarDeclination))),
         );
-        this.sunRise = dateDatum + (this.solarTransit - hourAngle / 360)
+        this.sunrise = dateDatum + (this.solarTransit - hourAngle / 360)
             * 86400000;
-        this.sunSet = dateDatum + (this.solarTransit + hourAngle / 360)
+        this.sunset = dateDatum + (this.solarTransit + hourAngle / 360)
             * 86400000;
     }
-    calcNextSunrise(timeToPoint, latitude, longitude, altitude) {
-        this.date = timeToPoint;
-        const timeNow = timeToPoint;
-        let i = 0;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.altitudeFeet = altitude;
-        do {
-            this.date = this.date + i * 86400000;
-            this.calcSolarNoon();
-            const hourAngle = deg.degACos(
-                ((deg.degSin(
-                    -0.83 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)),
+    calcNextSunrise(time, latitude, longitude, altitude) {
+        this.nextSunrise = null;
+        this.reCalcTimes(
+            time,
+            latitude,
+            longitude,
+            altitude
+        )
+        if(time < this.sunrise && this.sunrise < (time+oneDay)){
+            this.nextSunrise = this.sunrise;
+        } else if(time > this.sunrise){
+            let i = 1;
+            do{
+                this.reCalcTimes(
+                    time+i*oneDay,
+                    latitude,
+                    longitude,
+                    altitude
                 )
-                    - deg.degSin(this.latitude)
-                    * deg.degSin(this.solarDeclination))
-                    / (deg.degCos(this.latitude)
-                        * deg.degCos(this.solarDeclination))),
-            );
-            this.sunRise = dateDatum + (this.solarTransit - hourAngle / 360)
-                * 86400000;
-            i++;
-        }while (this.sunRise < timeNow && i < 2);
-
-        /*if ((this.sunRise - this.date) > 86400000) {
-            this.date = this.date - Math.floor((this.sunRise-this.date)/ 86400000)* 86400000;
-            this.calcSolarNoon();
-            const hourAngle = deg.degACos(
-                ((deg.degSin(
-                    -0.83 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)),
+                i++;
+            } while(time > this.sunrise);
+            this.nextSunrise = this.sunrise;
+            
+        } else if (this.sunrise > (time+oneDay)){
+            let i = 1;
+            do{
+                this.reCalcTimes(
+                    time+i*oneDay,
+                    latitude,
+                    longitude,
+                    altitude
                 )
-                    - deg.degSin(this.latitude)
-                    * deg.degSin(this.solarDeclination))
-                    / (deg.degCos(this.latitude)
-                        * deg.degCos(this.solarDeclination))),
-            );
-            this.sunRise = dateDatum + (this.solarTransit - hourAngle / 360)
-                * 86400000;
-        }*/
-        return this.sunRise;
-    }
-    calcNextSunset(date, latitude, longitude, altitude) {
-        this.date = date;
-        const timeNow = date;
-        let i = -1;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.altitudeFeet = altitude;
-        do {
-            this.date = this.date + i * 86400000;
-            this.calcSolarNoon();
-            const hourAngle = deg.degACos(
-                ((deg.degSin(
-                    -0.83 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)),
-                )
-                    - deg.degSin(this.latitude)
-                    * deg.degSin(this.solarDeclination))
-                    / (deg.degCos(this.latitude)
-                        * deg.degCos(this.solarDeclination))),
-            );
-            this.sunSet = dateDatum + (this.solarTransit + hourAngle / 360)
-                * 86400000;
-            i++;
-        } while (this.sunSet < timeNow && i < 4);
-
-        if ((this.sunSet - this.date) > 86400000) {
-            this.date = this.date - Math.floor((this.sunSet-this.date)/ 86400000)* 86400000;
-            this.calcSolarNoon();
-            const hourAngle = deg.degACos(
-                ((deg.degSin(
-                    -0.83 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)),
-                )
-                    - deg.degSin(this.latitude)
-                    * deg.degSin(this.solarDeclination))
-                    / (deg.degCos(this.latitude)
-                        * deg.degCos(this.solarDeclination))),
-            );
-            this.sunSet = dateDatum + (this.solarTransit + hourAngle / 360)
-                * 86400000;
+                i--;
+            } while(this.sunrise > (time+oneDay));
+            this.nextSunrise = this.sunrise;
+        } else{
+            console.log(new Date(this.sunrise).toUTCString())
+            this.nextSunrise = this.sunrise;
         }
-        return this.sunSet;
+        return this.nextSunrise;
     }
-
+    calcNextSunset(time, latitude, longitude, altitude) {
+        this.nextSunset = null;
+        this.reCalcTimes(
+            time,
+            latitude,
+            longitude,
+            altitude
+        )
+        if(time < this.sunset && this.sunset < (time+oneDay)){
+            this.nextSunset = this.sunset;
+        } else if(time > this.sunset){
+            let i = 1;
+            do{
+                this.reCalcTimes(
+                    time+i*oneDay,
+                    latitude,
+                    longitude,
+                    altitude
+                )
+                i++;
+            } while(time > this.sunset);
+            this.nextSunset = this.sunset;
+            
+        } else if (this.sunset > (time+oneDay)){
+            let i = 1;
+            do{
+                this.reCalcTimes(
+                    time+i*oneDay,
+                    latitude,
+                    longitude,
+                    altitude
+                )
+                i--;
+            } while(this.sunset > (time+oneDay));
+            this.nextSunset = this.sunset;
+        } else{
+            this.nextSunset = this.sunset;
+        }
+        return this.nextSunset;
+    }
+    getNextSunset() {
+        return new Date(this.nextSunset);
+    }
+    getNextSunrise() {
+        return new Date(this.nextSunrise);
+    }
     calcSolarMidnight() {
         // Adds 12 hours to current solar transit/noon.
         this.solarMidnight = this.solarNoon + 43200000;
@@ -229,10 +237,10 @@ class SunAstroTimes {
         return this.civilTwilightSet;
     }
     getSunrise() {
-        return this.sunRise;
+        return this.sunrise;
     }
     getSunset() {
-        return this.sunSet;
+        return new Date(this.sunset);
     }
     getLCLMidnight() {
         return this.localMidnight;

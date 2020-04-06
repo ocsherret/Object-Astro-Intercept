@@ -14,7 +14,7 @@ const sun = new SunAstroTimes(
     plane.getLongitude(),
     plane.getAltitudeFeet(),
 );
-const sun2 = new SunAstroTimes(
+const position = new SunAstroTimes(
     timeNow,
     plane.getLatitude(),
     plane.getLongitude(),
@@ -33,8 +33,8 @@ function calculateProjectedLatLong(distanceToSunset, timeToPoint) {
     let directionRad = deg.toRadians(plane.getTrueBearing());
     let latitudeRad = deg.toRadians(plane.getLatitude());
     let longitudeRad = deg.toRadians(plane.getLongitude());
-    let sunrise = null;
-    let sunset = null;
+    let nextSunrise = null;
+    let nextSunset = null;
 
     newLatitude = Math.asin(
         Math.sin(latitudeRad) * Math.cos(distanceToSunset / 3440)
@@ -61,14 +61,14 @@ function calculateProjectedLatLong(distanceToSunset, timeToPoint) {
         newLongitude = difference + 180;
     }
 
-    sunset = sun.calcNextSunset(timeToPoint, newLatitude, newLongitude, plane.getAltitudeFeet());
-    sunrise = sun.calcNextSunrise(timeToPoint, newLatitude, newLongitude, plane.getAltitudeFeet());
-    testVar = [sunrise,sunset];
+    nextSunset = sun.calcNextSunset(timeToPoint, newLatitude, newLongitude, plane.getAltitudeFeet());
+    nextSunrise = sun.calcNextSunrise(timeToPoint, newLatitude, newLongitude, plane.getAltitudeFeet());
+    testVar = [nextSunrise,nextSunset];
     
     if(daytime === true){
-        return sunset;
+        return nextSunset;
     }else if (daytime === false){
-        return sunrise;
+        return nextSunrise;
         
     }else{
         console.log("Error");
@@ -77,11 +77,15 @@ function calculateProjectedLatLong(distanceToSunset, timeToPoint) {
 function checkForIntercept() {
     let interceptTime = null;
     let timeToPoint = null;
+    let timeToGo = null;
     console.log(new Date(Date.now()).toUTCString());
-    for(let i = 0; i <= plane.getSpeed()*1; i+=0.1){
+    for(let i = 0; i <= plane.getSpeed()*6; i+=0.1){
         timeToPoint = i/plane.getSpeed() * oneHour + Date.now();
         interceptTime = calculateProjectedLatLong(i, timeToPoint);
-        if(timeToPoint >= interceptTime){
+        timeToGo = (timeToPoint - Date.now()) / oneHour;
+        
+        if(timeToPoint >= interceptTime - 6000){
+            console.log("Time to Intercept:     " +timeToGo+"HRS");
             console.log("Time Now:              " + new Date(Date.now()).toUTCString())
             console.log("Time at Point:         "+new Date(timeToPoint).toUTCString());
             if(daytime === true){
@@ -92,7 +96,7 @@ function checkForIntercept() {
             console.log("Lat/Long Intercept:    "+ newLatitude,newLongitude);
             break;
         } 
-        if(i > (plane.getSpeed() * 1) - 0.2){
+        if(i > (plane.getSpeed() * 6) - 0.1){
             console.log("Time at Point:         "+new Date(timeToPoint).toUTCString());
             console.log("Sunrise Time:          "+new Date(testVar[0]).toUTCString());
             console.log("Sunset Time:           "+new Date(testVar[1]).toUTCString());
@@ -108,17 +112,17 @@ function checkForIntercept() {
 
 function check() {
     timeNow = Date.now();
-    sun2.reCalcTimes(timeNow, plane.getLatitude(), plane.getLongitude(), plane.getAltitudeFeet());
-    if(timeNow > (sun2.getSunrise()+oneDay) || (timeNow > sun2.getSunrise() && timeNow > sun2.getSunset())){
-        sun2.reCalcTimes(timeNow+oneDay, plane.getLatitude(), plane.getLongitude(), plane.getAltitudeFeet());
+    position.reCalcTimes(timeNow, plane.getLatitude(), plane.getLongitude(), plane.getAltitudeFeet());
+    if(timeNow > (position.getSunrise()+oneDay) || (timeNow > position.getSunrise() && timeNow > position.getSunset())){
+        position.reCalcTimes(timeNow+oneDay, plane.getLatitude(), plane.getLongitude(), plane.getAltitudeFeet());
     }
     console.log("||------------------------------------------------||");
     console.log("Time now:          "+new Date(timeNow).toUTCString());
-    console.log("Current Pos SR:    "+new Date(sun2.getSunrise()).toUTCString());
-    console.log("Current Pos SS:    "+new Date(sun2.getSunset()).toUTCString());
+    console.log("Current Pos SR:    "+new Date(position.getSunrise()).toUTCString());
+    console.log("Current Pos SS:    "+new Date(position.getSunset()).toUTCString());
     
 
-    if(timeNow >= sun2.getSunrise() && timeNow <= sun2.getSunset()){
+    if(timeNow >= position.getSunrise() && timeNow <= position.getSunset()){
         console.log("DAYTIME");
         daytime = true;
     }else{
@@ -129,6 +133,6 @@ function check() {
     plane.move(5000);
 }
 
-check();
+//
 //checkForSunriseIntercept();
 const myHeartBeat = setInterval(check, 5000);
