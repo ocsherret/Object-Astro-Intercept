@@ -35,12 +35,9 @@ class SunAstroTimes {
         // All sunrise/sunset calculations are based on 01 JAN 2000 @ 1200Z
         // Have to divide the time by 86400000 to do all fomulas based on Days since the datum
         this.todaysDate = new Date(this.date);
-        const offsetCheck = this.todaysDate.getHours()
-            + Math.floor(this.longitude / 15)
-            + (this.todaysDate.getTimezoneOffset() / 60);
         this.localDayNum = new Date(
-            `${this.todaysDate.getMonth() + 1}/${this.todaysDate.getDate()
-                + 1}/${this.todaysDate.getFullYear()} 12:00:00Z`,
+            `${this.todaysDate.getUTCMonth() + 1}/${this.todaysDate.getUTCDate()
+            }/${this.todaysDate.getUTCFullYear()} 12:00:00Z`,
         ).getTime();
 
         this.julianDateNow = Math.round(
@@ -126,9 +123,9 @@ class SunAstroTimes {
         this.sunSet = dateDatum + (this.solarTransit + hourAngle / 360)
             * 86400000;
     }
-    calcNextSunrise(date, latitude, longitude, altitude) {
-        this.date = date;
-        const timeNow = date;
+    calcNextSunrise(timeToPoint, latitude, longitude, altitude) {
+        this.date = timeToPoint;
+        const timeNow = timeToPoint;
         let i = 0;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -148,12 +145,29 @@ class SunAstroTimes {
             this.sunRise = dateDatum + (this.solarTransit - hourAngle / 360)
                 * 86400000;
             i++;
-        } while (this.sunRise < timeNow && i < 2);
+        }while (this.sunRise < timeNow && i < 2);
+
+        /*if ((this.sunRise - this.date) > 86400000) {
+            this.date = this.date - Math.floor((this.sunRise-this.date)/ 86400000)* 86400000;
+            this.calcSolarNoon();
+            const hourAngle = deg.degACos(
+                ((deg.degSin(
+                    -0.83 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)),
+                )
+                    - deg.degSin(this.latitude)
+                    * deg.degSin(this.solarDeclination))
+                    / (deg.degCos(this.latitude)
+                        * deg.degCos(this.solarDeclination))),
+            );
+            this.sunRise = dateDatum + (this.solarTransit - hourAngle / 360)
+                * 86400000;
+        }*/
+        return this.sunRise;
     }
     calcNextSunset(date, latitude, longitude, altitude) {
         this.date = date;
         const timeNow = date;
-        let i = 0;
+        let i = -1;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitudeFeet = altitude;
@@ -189,7 +203,7 @@ class SunAstroTimes {
             this.sunSet = dateDatum + (this.solarTransit + hourAngle / 360)
                 * 86400000;
         }
-    
+        return this.sunSet;
     }
 
     calcSolarMidnight() {

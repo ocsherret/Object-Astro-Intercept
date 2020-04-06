@@ -3,9 +3,9 @@ const deg = new Degrees();
 
 class MovingObject {
     constructor() {
-        this.trueBearing = 90;
-        this.latitude = 43;
-        this.longitude = -129;
+        this.trueBearing = 75;
+        this.latitude = 45;
+        this.longitude = -85.9;
         this.altitudeFeet = 30000;
         this.speed = 600;
     }
