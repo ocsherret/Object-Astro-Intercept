@@ -1,13 +1,12 @@
 const Degrees = require("./degrees");
-const deg = new Degrees();
 
 class MovingObject {
     constructor() {
-        this.trueBearing = 275;
+        this.trueBearing = 75;
         this.latitude = 45;
-        this.longitude = 97.9;
+        this.longitude = -79;
         this.altitudeFeet = 30000;
-        this.speed = 300;
+        this.speed = 600;
     }
     getTrueBearing() {
         return this.trueBearing;
@@ -40,9 +39,9 @@ class MovingObject {
         this.speed = speed;
     }
     move(heartbeatInterval) {
-        let directionRad = deg.toRadians(this.trueBearing);
-        let latitudeRad = deg.toRadians(this.latitude);
-        let longitudeRad = deg.toRadians(this.longitude);
+        let directionRad = Degrees.toRadians(this.trueBearing);
+        let latitudeRad = Degrees.toRadians(this.latitude);
+        let longitudeRad = Degrees.toRadians(this.longitude);
         let newLatitude = this.latitude;
         let newLongitude = this.longitude;
         let newBearing = this.trueBearing;
@@ -57,7 +56,7 @@ class MovingObject {
         );
 
         newLongitude = this.longitude
-            + deg.toDegrees(
+            + Degrees.toDegrees(
                 Math.atan2(
                     Math.sin(directionRad) * Math.sin(funcDistance / 3440)
                         * Math.cos(latitudeRad),
@@ -66,15 +65,15 @@ class MovingObject {
                 ),
             );
 
-        newBearingY = Math.sin(longitudeRad - deg.toRadians(newLongitude))
+        newBearingY = Math.sin(longitudeRad - Degrees.toRadians(newLongitude))
             * Math.cos(latitudeRad);
         newBearingX = Math.cos(newLatitude) * Math.sin(latitudeRad)
             - Math.sin(newLatitude) * Math.cos(latitudeRad)
-            * Math.cos(longitudeRad - deg.toRadians(newLongitude));
-        newBearing = deg.toDegrees(Math.atan2(newBearingY, newBearingX));
+            * Math.cos(longitudeRad - Degrees.toRadians(newLongitude));
+        newBearing = Degrees.toDegrees(Math.atan2(newBearingY, newBearingX));
         newBearing = (newBearing + 180) % 360;
         // Conversion to here as these variables are needed in Radians.
-        newLatitude = deg.toDegrees(newLatitude);
+        newLatitude = Degrees.toDegrees(newLatitude);
 
         if(newLongitude > 180){
             let difference = newLongitude - 180;

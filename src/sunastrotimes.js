@@ -1,5 +1,5 @@
 const Degrees = require("./degrees");
-const deg = new Degrees();
+
 // All sun calcs are done using a date datum of 01 JAN 2000 @ 1200Zulu
 // Formulas used calculate using days, which is 86400000 milliseconds
 const dateDatum = new Date("2000-01-01T12:00:00Z").getTime();
@@ -15,25 +15,21 @@ class SunAstroTimes {
         this.longitude = longitude;
         this.altitudeFeet = altitude;
         this.calcSolarNoon();
-        this.calcAstronomicalTwilight();
-        this.calcNauticalTwilight();
-        this.calcCivilTwilight();
+       // this.calcAstronomicalTwilight();
+       // this.calcNauticalTwilight();
+       
         this.calcSunlight();
-        this.calcLCLMidnight();
-        this.calcSolarMidnight();
+        //this.calcLCLMidnight();
+        //this.calcSolarMidnight();
     }
     reCalcTimes(date, latitude, longitude, altitude) {
         this.date = date;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitudeFeet = altitude;
-        this.calcSolarNoon();
-        this.calcAstronomicalTwilight();
-        this.calcNauticalTwilight();
-        this.calcCivilTwilight();
+        this.calcSolarNoon();   
         this.calcSunlight();
-        this.calcLCLMidnight();
-        this.calcSolarMidnight();
+       
     }
     calcSolarNoon() {
         // All sunrise/sunset calculations are based on 01 JAN 2000 @ 1200Z
@@ -51,76 +47,28 @@ class SunAstroTimes {
         this.solarMeanAnomaly =
             (357.5291 + (0.98560028 * this.meanSolarNoon)) % 360;
         this.equationOfTheCentre = 1.9148
-            * deg.degSin(this.solarMeanAnomaly)
-            + 0.02 * deg.degSin(2 * this.solarMeanAnomaly)
-            + 0.0003 * deg.degSin(3 * this.solarMeanAnomaly);
+            * Degrees.degSin(this.solarMeanAnomaly)
+            + 0.02 * Degrees.degSin(2 * this.solarMeanAnomaly)
+            + 0.0003 * Degrees.degSin(3 * this.solarMeanAnomaly);
         this.eclipticLongitude =
             (this.solarMeanAnomaly + this.equationOfTheCentre + 180 + 102.9372)
                 % 360;
         this.solarTransit = this.meanSolarNoon + 0.0053
-            * deg.degSin(this.solarMeanAnomaly) - 0.0069
-            * deg.degSin(2 * this.eclipticLongitude);
-        this.solarDeclination = deg.degASin(
-            deg.degSin(this.eclipticLongitude) * deg.degSin(23.44),
+            * Degrees.degSin(this.solarMeanAnomaly) - 0.0069
+            * Degrees.degSin(2 * this.eclipticLongitude);
+        this.solarDeclination = Degrees.degASin(
+            Degrees.degSin(this.eclipticLongitude) * Degrees.degSin(23.44),
         );
         this.solarNoon = (this.solarTransit * 86400000) + dateDatum;
-    }
-    calcLCLMidnight() {
-        this.todaysDate = new Date(this.date);
-        this.localMidnight = new Date(
-            `${this.todaysDate.getMonth() + 1}/${this.todaysDate
-                .getDate()}/${this.todaysDate.getFullYear()} 23:59:59`,
-        ).getTime();
-    }
-
-    calcAstronomicalTwilight() {
-        // Astronomical twilight is when the suns centre is -18 degrees below the horizon.
-        const hourAngle = deg.degACos(
-            ((deg.degSin(-18 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)))
-                - deg.degSin(this.latitude) * deg.degSin(this.solarDeclination))
-                / (deg.degCos(this.latitude)
-                    * deg.degCos(this.solarDeclination))),
-        );
-
-        this.astronomicalTwilightRise = dateDatum
-            + (this.solarTransit - hourAngle / 360) * 86400000;
-        this.astronomicalTwilightSet = dateDatum
-            + (this.solarTransit + hourAngle / 360) * 86400000;
-    }
-    calcNauticalTwilight() {
-        // Nautical twilight is when the suns centre is -12 degrees below the horizon.
-        const hourAngle = deg.degACos(
-            ((deg.degSin(-12 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)))
-                - deg.degSin(this.latitude) * deg.degSin(this.solarDeclination))
-                / (deg.degCos(this.latitude)
-                    * deg.degCos(this.solarDeclination))),
-        );
-        this.nauticalTwilightRise = dateDatum
-            + (this.solarTransit - hourAngle / 360) * 86400000;
-        this.nauticalTwilightSet = dateDatum
-            + (this.solarTransit + hourAngle / 360) * 86400000;
-    }
-    calcCivilTwilight() {
-        // Civil twilight is when the suns centre is -6 degrees below the horizon.
-        const hourAngle = deg.degACos(
-            ((deg.degSin(-6 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)))
-                - deg.degSin(this.latitude) * deg.degSin(this.solarDeclination))
-                / (deg.degCos(this.latitude)
-                    * deg.degCos(this.solarDeclination))),
-        );
-        this.civilTwilightRise = dateDatum
-            + (this.solarTransit - hourAngle / 360) * 86400000;
-        this.civilTwilightSet = dateDatum
-            + (this.solarTransit + hourAngle / 360) * 86400000;
-    }
+    }    
     calcSunlight() {
         // Using the generally accepted number of -0.83 degrees for when the top of
         // the sun goes below the horizon.
-        const hourAngle = deg.degACos(
-            ((deg.degSin(-0.83 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)))
-                - deg.degSin(this.latitude) * deg.degSin(this.solarDeclination))
-                / (deg.degCos(this.latitude)
-                    * deg.degCos(this.solarDeclination))),
+        const hourAngle = Degrees.degACos(
+            ((Degrees.degSin(-0.83 + (-1.15 * (Math.sqrt(this.altitudeFeet) / 60)))
+                - Degrees.degSin(this.latitude) * Degrees.degSin(this.solarDeclination))
+                / (Degrees.degCos(this.latitude)
+                    * Degrees.degCos(this.solarDeclination))),
         );
         this.sunrise = dateDatum + (this.solarTransit - hourAngle / 360)
             * 86400000;
@@ -163,7 +111,6 @@ class SunAstroTimes {
             } while(this.sunrise > (time+oneDay));
             this.nextSunrise = this.sunrise;
         } else{
-            console.log(new Date(this.sunrise).toUTCString())
             this.nextSunrise = this.sunrise;
         }
         return this.nextSunrise;
@@ -214,43 +161,14 @@ class SunAstroTimes {
     getNextSunrise() {
         return new Date(this.nextSunrise);
     }
-    calcSolarMidnight() {
-        // Adds 12 hours to current solar transit/noon.
-        this.solarMidnight = this.solarNoon + 43200000;
-    }
-    getAstronomicalRise() {
-        return this.astronomicalTwilightRise;
-    }
-    getAstronomicalSet() {
-        return this.astronomicalTwilightSet;
-    }
-    getNauticalRise() {
-        return this.nauticalTwilightRise;
-    }
-    getNauticalSet() {
-        return this.nauticalTwilightSet;
-    }
-    getCivilRise() {
-        return this.civilTwilightRise;
-    }
-    getCivilSet() {
-        return this.civilTwilightSet;
-    }
-    getSunrise() {
-        return this.sunrise;
-    }
+    
     getSunset() {
         return new Date(this.sunset);
     }
-    getLCLMidnight() {
-        return this.localMidnight;
+    getSunrise(){
+        return new Date(this.sunrise);
     }
-    getSolarMidnight() {
-        return this.solarMidnight;
-    }
-    getSolarNoon() {
-        return this.solarNoon;
-    }
+
 }
 
 module.exports = SunAstroTimes;
