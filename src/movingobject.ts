@@ -1,6 +1,13 @@
-const Degrees = require("./degrees");
 
-class MovingObject {
+import * as Degrees from "./degrees";
+
+export class MovingObject {
+    trueBearing: number;
+    latitude: number;
+    longitude:number;
+    speed: number;
+    altitudeFeet: number;
+
     constructor() {
         this.trueBearing = 75;
         this.latitude = 45;
@@ -11,34 +18,34 @@ class MovingObject {
     getTrueBearing() {
         return this.trueBearing;
     }
-    setTrueBearing(trueBearing) {
+    setTrueBearing(trueBearing:number) {
         this.trueBearing = trueBearing;
     }
     getLatitude() {
         return this.latitude;
     }
-    setLatitude(latitude) {
+    setLatitude(latitude: number) {
         this.latitude = latitude;
     }
     getLongitude() {
         return this.longitude;
     }
-    setLongitude(longitude) {
+    setLongitude(longitude: number) {
         this.longitude = longitude;
     }
     getAltitudeFeet() {
         return this.altitudeFeet;
     }
-    setAltitudeFeet(altitudeFeet) {
+    setAltitudeFeet(altitudeFeet: number) {
         this.altitudeFeet = altitudeFeet;
     }
     getSpeed() {
         return this.speed;
     }
-    setSpeed(speed) {
+    setSpeed(speed: number) {
         this.speed = speed;
     }
-    move(heartbeatInterval) {
+    move(heartbeatInterval: number) {
         let directionRad = Degrees.toRadians(this.trueBearing);
         let latitudeRad = Degrees.toRadians(this.latitude);
         let longitudeRad = Degrees.toRadians(this.longitude);
@@ -95,4 +102,4 @@ class MovingObject {
         ); // console.log(newLatitude,newLongitude);
     }
 }
-module.exports = MovingObject;
+

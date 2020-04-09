@@ -1,4 +1,4 @@
-const Degrees = require("./degrees");
+import * as Degrees from "./degrees"
 
 // All sun calcs are done using a date datum of 01 JAN 2000 @ 1200Zulu
 // Formulas used calculate using days, which is 86400000 milliseconds
@@ -8,8 +8,27 @@ const oneMinute = 60000;
 const oneHour = 3600000;
 const oneDay = 86400000;
 
-class SunAstroTimes {
-    constructor(date, latitude, longitude, altitude) {
+export class SunAstroTimes {
+    date: number;
+    latitude: number;
+    longitude: number;
+    altitudeFeet: number;
+    todaysDate: Date;
+    localDayNum: number;
+    julianDateNow: number;
+    meanSolarNoon: number;
+    solarMeanAnomaly: number;
+    equationOfTheCentre: number;
+    eclipticLongitude: number;
+    solarTransit: number;
+    solarDeclination: number;
+    solarNoon: number;
+    sunrise: number;
+    sunset: number;
+    nextSunrise: number;
+    nextSunset: number;
+
+    constructor(date:number, latitude:number, longitude:number, altitude:number) {
         this.date = date;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -22,7 +41,7 @@ class SunAstroTimes {
         //this.calcLCLMidnight();
         //this.calcSolarMidnight();
     }
-    reCalcTimes(date, latitude, longitude, altitude) {
+    reCalcTimes(date:number, latitude:number, longitude:number, altitude:number) {
         this.date = date;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -75,7 +94,7 @@ class SunAstroTimes {
         this.sunset = dateDatum + (this.solarTransit + hourAngle / 360)
             * 86400000;
     }
-    calcNextSunrise(time, latitude, longitude, altitude) {
+    calcNextSunrise(time:number, latitude:number, longitude:number, altitude:number) {
         this.nextSunrise = null;
         this.reCalcTimes(
             time,
@@ -115,7 +134,7 @@ class SunAstroTimes {
         }
         return this.nextSunrise;
     }
-    calcNextSunset(time, latitude, longitude, altitude) {
+    calcNextSunset(time:number, latitude:number, longitude:number, altitude:number) {
         this.nextSunset = null;
         this.reCalcTimes(
             time,
@@ -156,19 +175,18 @@ class SunAstroTimes {
         return this.nextSunset;
     }
     getNextSunset() {
-        return new Date(this.nextSunset);
+        return this.nextSunset;
     }
     getNextSunrise() {
-        return new Date(this.nextSunrise);
+        return this.nextSunrise;
     }
     
     getSunset() {
-        return new Date(this.sunset);
+        return this.sunset;
     }
     getSunrise(){
-        return new Date(this.sunrise);
+        return this.sunrise;
     }
 
 }
 
-module.exports = SunAstroTimes;

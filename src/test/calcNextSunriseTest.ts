@@ -1,13 +1,13 @@
-const { getNextSunriseTime } = require('../src/calcNextSunrise');
-const expect = require('chai').expect;
+import { SunAstroTimes } from "../sunastrotimes"
+import { expect } from 'chai';
 
 describe("#calcNextSunriseTime()", () => {
-    function runTest(time, latitude, longitude, altitude, expected) {
-        time = new Date(time);
-        expected = new Date(expected);
+    function runTest(time:string, latitude: number, longitude: number, altitude: number, expected: string) {
+        const timeNum = new Date(time).getTime();
+        const expectedNum = new Date(expected).getTime();
 
-        const actual = getNextSunriseTime(time, latitude, longitude, altitude);
-        const difference = Math.abs(actual.getTime() - expected.getTime());
+        const actual = new SunAstroTimes(timeNum, latitude, longitude, altitude);
+        const difference = Math.abs(actual.getNextSunrise() - expectedNum);
 
         if (difference > 1000) {
             expect.fail(`Actual ${actual}. Expected ${expected}.`);

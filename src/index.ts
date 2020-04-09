@@ -1,15 +1,22 @@
-const Degrees = require("./degrees");
-const SunAstroTimes = require("./sunastrotimes");
-const MovingObject = require("./movingobject");
-const movingUFO = new MovingObject();
-const logger = require("./loging");
+import * as Degrees from "./degrees";
+import { SunAstroTimes } from "./sunastrotimes";
+import { MovingObject as obj } from "./movingobject"
+import { log } from "./loging";
 const timingInterval = 5000;
 const oneSecond = 1000;
 const oneMinute = 60000;
 const oneHour = 3600000;
 const oneDay = 86400000;
 
-function calculateProjectedLatLong (distanceToPoint, timeToPoint, objTrueBearing, objLatitude, objLongitude, objAltitude, timeNow, daytime) {
+export function calculateProjectedLatLong (
+    distanceToPoint: number, 
+    timeToPoint: number, 
+    objTrueBearing: number, 
+    objLatitude: number, 
+    objLongitude: number, 
+    objAltitude: number, 
+    timeNow: number, 
+    daytime: boolean) {
     // Purpose of this function is to get the projected Lat/Long using a great circle line.
     // Then it uses the projected time of arrival of the object to recalculate the astro times.
     let directionRad = Degrees.toRadians(objTrueBearing);
@@ -22,9 +29,9 @@ function calculateProjectedLatLong (distanceToPoint, timeToPoint, objTrueBearing
 
     const sun = new SunAstroTimes(
         timeNow,
-        movingUFO.getLatitude(),
-        movingUFO.getLongitude(),
-        movingUFO.getAltitudeFeet(),
+        objLatitude,
+        objLongitude,
+        objAltitude,
     );
     newLatitude = Math.asin(
         Math.sin(latitudeRad) * Math.cos(distanceToPoint / 3440)
@@ -74,7 +81,15 @@ function calculateProjectedLatLong (distanceToPoint, timeToPoint, objTrueBearing
         throw new Error("Error in returning next Sunrise, or the next Sunset");
     }
 }
-function checkForIntercept(objTrueBearing, objLatitude, objLongitude, objAltitude, objSpeed, timeNow, daytime) {
+export function checkForIntercept(
+    objTrueBearing: number, 
+    objLatitude: number, 
+    objLongitude: number, 
+    objAltitude: number, 
+    objSpeed: number, 
+    timeNow: number, 
+    daytime: boolean) {
+
     // This function works by drawing an imaginary growing line in front of the object
     // At each point the next sunset, and sunrise time is checked.
     // Also the time it will take for the object to reach that point is calculated.
@@ -105,21 +120,27 @@ function checkForIntercept(objTrueBearing, objLatitude, objLongitude, objAltitud
     
     return undefined;
 }
-
-function checkState(obj, timeDate) {
-    const objTrueBearing = obj.getTrueBearing();
-    const objLatitude = obj.getLatitude();
-    const objLongitude = obj.getLongitude();
-    const objAltitude = obj.getAltitudeFeet();
-    const objSpeed = obj.getSpeed();
+interface MovingObject{
+    trueBearing: number;
+    latitude: number;
+    longitude: number;
+    altitudeFeet:number;
+    speed: number;
+}
+export function checkState(obj: MovingObject, timeDate: number) {
+    const objTrueBearing = obj.trueBearing;
+    const objLatitude = obj.latitude;
+    const objLongitude = obj.longitude;
+    const objAltitude = obj.altitudeFeet;
+    const objSpeed = obj.speed;
     let timeNow = timeDate;
     let daytime = true;
 
     const currentSunPosition = new SunAstroTimes(
         timeNow,
-        movingUFO.getLatitude(),
-        movingUFO.getLongitude(),
-        movingUFO.getAltitudeFeet(),
+        objLatitude,
+        objLongitude,
+        objAltitude
     );
     if (
         timeNow > (currentSunPosition.getSunrise() + oneDay)
@@ -138,13 +159,14 @@ function checkState(obj, timeDate) {
         timeNow >= currentSunPosition.getSunrise()
         && timeNow <= currentSunPosition.getSunset()
     ) {
-        logger.log("Day State:  DAYTIME");
+        log("Day State:  DAYTIME");
         daytime = true;
     } else {
-        logger.log("Day State: NIGHTTIME");
+        log("Day State: NIGHTTIME");
         daytime = false;
     }
     checkForIntercept(objTrueBearing, objLatitude, objLongitude, objAltitude, objSpeed, timeNow, daytime);
 }
-module.exports = {checkState, checkForIntercept, calculateProjectedLatLong}
-checkState(movingUFO, Date.now());
+
+checkState(new obj(), Date.now())
+

@@ -4,19 +4,21 @@
   "description": "Find the time at which a plane will intercept the local sunset/sunrise/etc in GMT",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "build": "babel src -d lib",
-    "start": "npm run build && node src/index.js"
+    "test": "npm run build && mocha dist/test" ,
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
+    "@types/node": "^13.11.1",
     "chai": "^4.2.0",
     "mocha": "^7.1.1"
   },
   "dependencies": {
-    "date-fns": "^2.11.1"
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "date-fns": "^2.11.1",
+    "typescript": "^3.8.3"
   }
 }
