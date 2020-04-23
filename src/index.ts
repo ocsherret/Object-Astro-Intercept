@@ -81,45 +81,6 @@ export function calculateProjectedLatLong (
         throw new Error("Error in returning next Sunrise, or the next Sunset");
     }
 }
-export function checkForIntercept(
-    objTrueBearing: number, 
-    objLatitude: number, 
-    objLongitude: number, 
-    objAltitude: number, 
-    objSpeed: number, 
-    timeNow: number, 
-    daytime: boolean) {
-
-    // This function works by drawing an imaginary growing line in front of the object
-    // At each point the next sunset, and sunrise time is checked.
-    // Also the time it will take for the object to reach that point is calculated.
-    // Once the time to reach the point is greater than the sunset/sunrise at that point
-    // the time is returned.
-    let interceptTime = null;
-    let timeToPoint = null;
-    let newLatitude = null;
-    let newLongitude = null;
-    for (let i = 0; i <= objSpeed * 6; i += 0.1) {
-        // In this case 'i' is distance
-        timeToPoint = i / objSpeed * oneHour + timeNow;
-        const intercept = calculateProjectedLatLong(i, timeToPoint, objTrueBearing, objLatitude, objLongitude, objAltitude, timeNow, daytime);
-        interceptTime = intercept.nextSunTime;
-        
-        if (timeToPoint >= interceptTime - timingInterval * 1.25) {
-            //Returns the time now
-            //Returns the time to the Point
-            //Returns the interceptTime, which is also the sunset/sunrise at the point
-            //Returns the latitude at that point
-            //Returns the longitude at that point
-            //Returns weather the object is Currently in Daylight
-            newLatitude = intercept.newLatitude;
-            newLongitude = intercept.newLongitude;
-            return {timeNow, timeToPoint, interceptTime, newLatitude, newLongitude};
-        }   
-    }
-    
-    return undefined;
-}
 interface MovingObject{
     trueBearing: number;
     latitude: number;
@@ -135,6 +96,9 @@ export function checkState(obj: MovingObject, timeDate: number) {
     const objSpeed = obj.speed;
     let timeNow = timeDate;
     let daytime = true;
+
+    //the properties of the moving object are passed into this function
+    //to check to see if we are looking for a sunrise or a sunset
 
     const currentSunPosition = new SunAstroTimes(
         timeNow,
@@ -159,14 +123,56 @@ export function checkState(obj: MovingObject, timeDate: number) {
         timeNow >= currentSunPosition.getSunrise()
         && timeNow <= currentSunPosition.getSunset()
     ) {
-        log("Day State:  DAYTIME");
+        //log("Day State:  DAYTIME");
         daytime = true;
     } else {
-        log("Day State: NIGHTTIME");
+       // log("Day State: NIGHTTIME");
         daytime = false;
     }
-    checkForIntercept(objTrueBearing, objLatitude, objLongitude, objAltitude, objSpeed, timeNow, daytime);
+    //Using the properties of the object we now check to see when it intercepts sunrise/sunset
+    return checkForIntercept(objTrueBearing, objLatitude, objLongitude, objAltitude, objSpeed, timeNow, daytime);
 }
 
-checkState(new obj(), Date.now())
+export function checkForIntercept(
+    objTrueBearing: number, 
+    objLatitude: number, 
+    objLongitude: number, 
+    objAltitude: number, 
+    objSpeed: number, 
+    timeNow: number, 
+    daytime: boolean) {
+
+    // This function works by drawing an imaginary growing line in front of the object
+    // At each point the next sunset, and sunrise time is checked.
+    // Also the time it will take for the object to reach that point is calculated.
+    // Once the time to reach the point is greater than the sunset/sunrise at that point
+    // the time is returned.
+    let interceptTime = null;
+    let timeToPoint = null;
+    let newLatitude = null;
+    let newLongitude = null;
+    for (let i = 0; i <= objSpeed * 12; i += 0.1) {
+        // In this case 'i' is distance
+        timeToPoint = i / objSpeed * oneHour + timeNow;
+        const intercept = calculateProjectedLatLong(i, timeToPoint, objTrueBearing, objLatitude, objLongitude, objAltitude, timeNow, daytime);
+        interceptTime = intercept.nextSunTime;
+        
+        if (timeToPoint >= interceptTime - timingInterval * 1.25) {
+            //Returns the time now
+            //Returns the time to the Point
+            //Returns the interceptTime, which is also the sunset/sunrise at the point
+            //Returns the latitude at that point
+            //Returns the longitude at that point
+            //Returns weather the object is Currently in Daylight
+            newLatitude = intercept.newLatitude;
+            newLongitude = intercept.newLongitude;
+            return {timeNow, timeToPoint, interceptTime, newLatitude, newLongitude};
+        }   
+    }
+    
+    return undefined;
+}
+
+
+//checkState(new obj(), Date.now())
 

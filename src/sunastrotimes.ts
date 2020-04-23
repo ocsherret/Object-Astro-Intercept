@@ -102,7 +102,7 @@ export class SunAstroTimes {
             longitude,
             altitude
         )
-        if(time < this.sunrise && this.sunrise < (time+oneDay)){
+        if(time < this.sunrise && this.sunrise < (time+6*oneHour)){
             this.nextSunrise = this.sunrise;
         } else if(time > this.sunrise){
             let i = 1;
@@ -121,7 +121,7 @@ export class SunAstroTimes {
             let i = 1;
             do{
                 this.reCalcTimes(
-                    time+i*oneDay,
+                    time+i*oneDay, 
                     latitude,
                     longitude,
                     altitude
@@ -145,7 +145,7 @@ export class SunAstroTimes {
         if(time < this.sunset && this.sunset < (time+oneDay)){
             this.nextSunset = this.sunset;
         } else if(time > this.sunset){
-            let i = 1;
+            let i = 0;
             do{
                 this.reCalcTimes(
                     time+i*oneDay,
@@ -167,7 +167,7 @@ export class SunAstroTimes {
                     altitude
                 )
                 i--;
-            } while(this.sunset > (time+oneDay));
+            } while(this.sunset > (time+oneDay)&& i > -1);
             this.nextSunset = this.sunset;
         } else{
             this.nextSunset = this.sunset;

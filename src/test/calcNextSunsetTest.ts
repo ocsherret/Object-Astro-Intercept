@@ -5,9 +5,9 @@ describe("#calcNextSunsetTime()", () => {
     function runTest(time: string, latitude: number, longitude: number, altitude: number, expected: string) {
         const timeNum = new Date(time).getTime();
         const expectedNum = new Date(expected).getTime();
-        const actual = new SunAstroTimes(timeNum, latitude, longitude, altitude);
-        const difference = Math.abs(actual.getNextSunset() - expectedNum);
-
+        const sun = new SunAstroTimes(timeNum, latitude, longitude, altitude);
+        const actual = sun.calcNextSunset(timeNum, latitude, longitude, altitude);
+        const difference = Math.abs(sun.getNextSunset() - expectedNum);
         if (difference > 1000) {
             expect.fail(`Actual ${actual}. Expected ${expected}.`);
         }
