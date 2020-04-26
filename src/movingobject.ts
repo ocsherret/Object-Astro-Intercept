@@ -11,9 +11,9 @@ export class MovingObject {
     constructor() {
         this.trueBearing = 75;
         this.latitude = 45;
-        this.longitude = -79;
+        this.longitude = -90;
         this.altitudeFeet = 30000;
-        this.speed = 600;
+        this.speed = 200;
     }
     getTrueBearing() {
         return this.trueBearing;

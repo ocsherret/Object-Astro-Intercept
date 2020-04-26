@@ -4,7 +4,7 @@
   "description": "Find the time at which a plane will intercept the local sunset/sunrise/etc in GMT",
   "main": "dist/index.js",
   "scripts": {
-    "test": "npm run build && mocha dist/test" ,
+    "test": "npm run build && mocha dist/test",
     "build": "tsc",
     "start": "npm run build && node dist/index.js"
   },
@@ -19,6 +19,7 @@
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
     "date-fns": "^2.11.1",
+    "suncalc": "^1.8.0",
     "typescript": "^3.8.3"
   }
 }

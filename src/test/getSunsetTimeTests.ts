@@ -25,4 +25,7 @@ describe("#getSunsetTime()", () => {
     it("should return the correct time for -160 Long", () => {
         runTest("2020-04-01 12:00:00Z", 45, -160, 252, "2020-04-02 05:09:29Z");
     });
+    it("should return the correct time for -160 Long", () => {
+        runTest("2020-04-02 02:00:00Z", 45, -160, 252, "2020-04-02 05:09:29Z");
+    });
 });

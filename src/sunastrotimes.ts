@@ -58,10 +58,9 @@ export class SunAstroTimes {
             `${this.todaysDate.getUTCMonth() + 1}/${this.todaysDate.getUTCDate()
             }/${this.todaysDate.getUTCFullYear()} 12:00:00Z`,
         ).getTime();
+        this.julianDateNow = 
+            (this.localDayNum - dateDatum) / 86400000;
 
-        this.julianDateNow = Math.round(
-            (this.localDayNum - dateDatum) / 86400000,
-        );
         this.meanSolarNoon = this.julianDateNow - (this.longitude / 360);
         this.solarMeanAnomaly =
             (357.5291 + (0.98560028 * this.meanSolarNoon)) % 360;
@@ -102,7 +101,7 @@ export class SunAstroTimes {
             longitude,
             altitude
         )
-        if(time < this.sunrise && this.sunrise < (time+6*oneHour)){
+        if(time < this.sunrise && this.sunrise < (time+oneDay)){
             this.nextSunrise = this.sunrise;
         } else if(time > this.sunrise){
             let i = 1;
