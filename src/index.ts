@@ -8,17 +8,17 @@ const oneDay = 86400000;
 
 
 interface MovingObject{
-    trueBearing: number;
+    heading: number;
     latitude: number;
     longitude: number;
-    altitudeFeet:number;
+    altitude:number;
     speed: number;
 }
 export function checkState(obj: MovingObject, timeDate: number) {
-    const objTrueBearing = obj.trueBearing;
+    const objTrueBearing = obj.heading;
     const objLatitude = obj.latitude;
     const objLongitude = obj.longitude;
-    const objAltitude = obj.altitudeFeet * 0.3048;
+    const objAltitude = obj.altitude * 0.3048;
     const objSpeed = obj.speed;
     let timeNow = timeDate;
     let daytime = true;
@@ -69,20 +69,24 @@ export function checkForIntercept(
             if(daytime === true && sunAlt <= 0){
                 newLatitude = intercept.newLatitude;
                 newLongitude = intercept.newLongitude;
-                return {timeNow, timeToPoint, newLatitude, newLongitude};
+                return {timeNow, timeToPoint, newLatitude, newLongitude, daytime};
             }else if(daytime === false && sunAlt > 0){
                 newLatitude = intercept.newLatitude;
                 newLongitude = intercept.newLongitude;
-                return {timeNow, timeToPoint, newLatitude, newLongitude};
+                return {timeNow, timeToPoint, newLatitude, newLongitude, daytime};
             }
             
         }
     } else if (objSpeed === 0 && daytime === true) {
         timeToPoint = SunCalc.getTimes(timeNow,objLatitude, objLongitude,objAltitude/3.28084).sunset.getTime();
-        return {timeNow, timeToPoint, objLatitude, objLongitude};
+        newLatitude = objLatitude;
+        newLongitude=objLongitude;
+        return {timeNow, timeToPoint, newLatitude, newLongitude, daytime};
     } else if (objSpeed === 0 && daytime === false) {
         timeToPoint = SunCalc.getTimes(timeNow,objLatitude, objLongitude,objAltitude/3.28084).sunrise.getTime();
-        return {timeNow, timeToPoint, objLatitude, objLongitude};
+        newLatitude = objLatitude;
+        newLongitude=objLongitude;
+        return {timeNow, timeToPoint, newLatitude, newLongitude, daytime};
     } else {
         return undefined;
     }
